@@ -3,10 +3,14 @@ package com.dev.shop.controllers;
 import com.dev.shop.assemblers.CartAssembler;
 import com.dev.shop.dtos.CartInfo;
 import com.dev.shop.dtos.CartItemInfo;
+import com.dev.shop.models.Amount;
 import com.dev.shop.models.Cart;
 import com.dev.shop.repositories.CartRepository;
+import com.dev.shop.repositories.ItemRepository;
 import com.dev.shop.requestmodels.CartModel;
 import com.dev.shop.services.CartService;
+import com.dev.shop.utilities.Cashier;
+import com.dev.shop.utilities.ShopInventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/carts")
 public class CartController {
+    @Autowired
+    private ItemRepository itemRepository;
+
     @Autowired
     private CartRepository cartRepository;
 
@@ -59,5 +66,17 @@ public class CartController {
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable long id){
         cartRepository.deleteById(id);
+    }
+
+    @GetMapping("/{id}/checkout")
+    public double checkout(@PathVariable long id){
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        ShopInventory shopInventory = new ShopInventory(itemRepository);
+        Cashier cashier = new Cashier(shopInventory);
+
+        Amount totalCost = cashier.checkout(cart);
+        return totalCost.getValue();
     }
 }
