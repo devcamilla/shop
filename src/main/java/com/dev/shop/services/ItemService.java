@@ -15,8 +15,7 @@ public class ItemService {
 
     public Item create(ItemInfo itemInfo) {
         Item item = new Item(itemInfo);
-        itemRepository.save(item);
-        return item;
+        return itemRepository.save(item);
     }
 
     public void update(long id, ItemInfo itemInfo) {
