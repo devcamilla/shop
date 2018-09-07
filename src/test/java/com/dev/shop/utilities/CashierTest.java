@@ -1,9 +1,6 @@
 package com.dev.shop.utilities;
 
-import com.dev.shop.models.Amount;
-import com.dev.shop.models.Cart;
-import com.dev.shop.models.ItemType;
-import com.dev.shop.models.Percent;
+import com.dev.shop.models.*;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -12,7 +9,7 @@ public class CashierTest {
     @Test
     public void checkout_ShouldReturnTotalCost(){
         SimpleInventory inventory = new SimpleInventory();
-        inventory.addItem("Apple", new Amount(10));
+        inventory.addItem("Apple", new ItemType("VEG"), new Amount(10));
 
         Cart cart = new Cart();
         cart.addItem("Apple", 10);
@@ -24,9 +21,37 @@ public class CashierTest {
     }
 
     @Test
+    public void checkout_ShouldReturnTotalCost_UseItemPercentDiscount(){
+        SimpleInventory inventory = new SimpleInventory();
+        inventory.addItem("Apple", new ItemType("VEG"), new Amount(10), new Discount(new Percent(10)));
+
+        Cart cart = new Cart();
+        cart.addItem("Apple", 10);
+
+        Cashier cashier = new Cashier(inventory);
+        Amount totalCost = cashier.checkout(cart);
+
+        assertEquals(90d, totalCost.getValue());
+    }
+
+    @Test
+    public void checkout_ShouldReturnTotalCost_UseItemValueDiscount(){
+        SimpleInventory inventory = new SimpleInventory();
+        inventory.addItem("Apple", new ItemType("VEG"), new Amount(10), new Discount(new Amount(5)));
+
+        Cart cart = new Cart();
+        cart.addItem("Apple", 10);
+
+        Cashier cashier = new Cashier(inventory);
+        Amount totalCost = cashier.checkout(cart);
+
+        assertEquals(50d, totalCost.getValue());
+    }
+
+    @Test
     public void checkout_ShouldReturnTotalCost_UsingStoreWideCoupon(){
         SimpleInventory inventory = new SimpleInventory();
-        inventory.addItem("Apple", new Amount(10));
+        inventory.addItem("Apple", new ItemType("VEG"), new Amount(10));
 
         Cart cart = new Cart();
         cart.addItem("Apple", 10);

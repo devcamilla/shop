@@ -3,6 +3,8 @@ package com.dev.shop.utilities;
 import com.dev.shop.models.Amount;
 import com.dev.shop.models.Cart;
 
+import java.util.Optional;
+
 public class Cashier {
     private Inventory inventory;
 
@@ -18,26 +20,25 @@ public class Cashier {
     }
 
     public Amount checkout(Cart cart) {
-        double totalCost = cart.getCartItems().stream()
-                .mapToDouble(cartItem -> {
-                    Inventory.InventoryItem inventoryItem = inventory.getItem(cartItem.getItemCode());
-                    return inventoryItem.getUnitPrice().getValue() * cartItem.getQuantity();
-                }).sum();
-
-        return new Amount(totalCost);
+        return checkout(cart, Optional.empty());
     }
 
     public Amount checkout(Cart cart, String couponCode) {
-        CouponRegistry.Coupon coupon = couponRegistry.getCoupon(couponCode);
+        Optional<CouponRegistry.Coupon> coupon = couponRegistry.getCoupon(couponCode);
+        return checkout(cart, coupon);
+    }
 
+    private Amount checkout(Cart cart, Optional<CouponRegistry.Coupon> coupon) {
         double totalCost = cart.getCartItems().stream()
                 .mapToDouble(cartItem -> {
                     Inventory.InventoryItem inventoryItem = inventory.getItem(cartItem.getItemCode());
-                    double cost = inventoryItem.getUnitPrice().getValue() * cartItem.getQuantity();
+                    double cost = inventoryItem.getNetPrice().getValue() * cartItem.getQuantity();
 
-                    if (!coupon.appliesTo(inventoryItem.getItemType())) return cost;
+                    if (!coupon.isPresent()) return cost;
 
-                    double discount = coupon.getPercent().applyTo(cost);
+                    if (!coupon.get().appliesTo(inventoryItem.getItemType())) return cost;
+
+                    double discount = coupon.get().getPercent().applyTo(cost);
                     return cost - discount;
                 }).sum();
 

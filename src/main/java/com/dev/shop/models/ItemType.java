@@ -6,6 +6,8 @@ import javax.persistence.Embeddable;
 public class ItemType {
     private String value;
 
+    protected ItemType() {}
+
     public ItemType(String type){
         this.value = type;
     }

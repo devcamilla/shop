@@ -16,6 +16,6 @@ public class ShopInventory extends Inventory {
     public InventoryItem getItem(String itemCode){
         Item item = itemRepository.findByCode(itemCode);
         if (item == null) throw new EntityNotFoundException();
-        return new InventoryItem(itemCode, item.getUnitPrice());
+        return new InventoryItem(itemCode, item.getType(), item.getUnitPrice(), item.getDiscount());
     }
 }

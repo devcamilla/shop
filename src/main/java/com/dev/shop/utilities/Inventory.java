@@ -1,11 +1,13 @@
 package com.dev.shop.utilities;
 
 import com.dev.shop.models.Amount;
+import com.dev.shop.models.Discount;
 import com.dev.shop.models.ItemType;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class Inventory {
     protected List<InventoryItem> items = new ArrayList<>();
@@ -24,15 +26,13 @@ public abstract class Inventory {
 
         private Amount unitPrice;
 
-        protected InventoryItem(String code, Amount unitPrice){
-            this.code = code;
-            this.unitPrice = unitPrice;
-        }
+        private Optional<Discount> discount;
 
-        public InventoryItem(String code, ItemType itemType, Amount unitPrice) {
+        public InventoryItem(String code, ItemType itemType, Amount unitPrice, Optional<Discount> discount) {
             this.code = code;
             this.itemType = itemType;
             this.unitPrice = unitPrice;
+            this.discount = discount;
         }
 
         public String getCode() {
@@ -45,6 +45,16 @@ public abstract class Inventory {
 
         public Amount getUnitPrice() {
             return unitPrice;
+        }
+
+        public Optional<Discount> getDiscount() {
+            return discount;
+        }
+
+        public Amount getNetPrice(){
+            return discount.isPresent()
+                    ? AmountMath.substract(unitPrice, discount.get().applyTo(unitPrice))
+                    : unitPrice;
         }
     }
 }

@@ -12,11 +12,10 @@ import java.util.Optional;
 public abstract class CouponRegistry {
     protected List<Coupon> coupons = new ArrayList<>();
 
-    public Coupon getCoupon(String code){
+    public Optional<Coupon> getCoupon(String code){
         return coupons.stream()
                 .filter(coupon -> coupon.getCode().equalsIgnoreCase(code))
-                .findAny()
-                .orElseThrow(() -> new EntityNotFoundException());
+                .findAny();
     }
 
     public class Coupon {
