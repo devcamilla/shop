@@ -1,7 +1,5 @@
 package com.dev.shop.models;
 
-import com.dev.shop.dtos.CartItemInfo;
-
 import javax.persistence.*;
 
 @Entity
@@ -20,10 +18,10 @@ public class CartItem {
 
     protected CartItem() {}
 
-    public CartItem(Cart cart, CartItemInfo cartItemInfo) {
+    protected CartItem(Cart cart, String itemCode, double quantity) {
         this.cart = cart;
-        this.itemCode = cartItemInfo.getItemCode();
-        this.quantity = cartItemInfo.getQuantity();
+        this.itemCode = itemCode;
+        this.quantity = quantity;
     }
 
     public String getItemCode() {

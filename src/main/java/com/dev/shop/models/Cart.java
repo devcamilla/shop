@@ -1,8 +1,5 @@
 package com.dev.shop.models;
 
-import com.dev.shop.dtos.CartInfo;
-import com.dev.shop.dtos.CartItemInfo;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +14,7 @@ public class Cart {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems = new ArrayList<>();
 
-    protected Cart() {}
-
-    public Cart(CartInfo cartInfo){
-        if (cartInfo.getCartItemInfoList().size() < 0){
-            throw new CartNoItemException();
-        }
-
-        for (CartItemInfo cartItemInfo: cartInfo.getCartItemInfoList()){
-            CartItem cartItem = new CartItem(this, cartItemInfo);
-            cartItems.add(cartItem);
-        }
-    }
+    public Cart() {}
 
     public long getId() {
         return id;
@@ -38,19 +24,16 @@ public class Cart {
         return cartItems;
     }
 
-    public void addCartItem(CartItemInfo cartItemInfo) {
-        CartItem cartItem = new CartItem(this, cartItemInfo);
+    public void addItem(String itemCode, double quantity) {
+        CartItem cartItem = new CartItem(this, itemCode, quantity);
         cartItems.add(cartItem);
     }
 
-    public void removeCartItem(String itemCode) {
+    public void removeItem(String itemCode) {
         Optional<CartItem> cartItem = cartItems.stream()
                 .filter(item -> item.getItemCode().equalsIgnoreCase(itemCode))
                 .findAny();
 
         cartItem.ifPresent(item -> cartItems.remove(item));
-    }
-
-    public class CartNoItemException extends RuntimeException {
     }
 }

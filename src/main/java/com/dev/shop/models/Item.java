@@ -13,7 +13,8 @@ public class Item {
 
     private String code;
 
-    private String type;
+    @Embedded
+    private ItemType type;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "unitprice_value"))
@@ -45,7 +46,7 @@ public class Item {
         return code;
     }
 
-    public String getType() {
+    public ItemType getType() {
         return type;
     }
 

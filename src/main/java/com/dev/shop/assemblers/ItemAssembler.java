@@ -14,7 +14,7 @@ public class ItemAssembler {
 
         itemModel.id = item.getId();
         itemModel.code = item.getCode();
-        itemModel.type = item.getType();
+        itemModel.type = item.getType().getValue();
         itemModel.unitPrice = item.getUnitPrice().getValue();
 
         Weight unitWeight = item.getUnitWeight();
@@ -30,11 +30,12 @@ public class ItemAssembler {
                 ? Optional.of(new Discount(new Percent(itemModel.discount.percent), new Amount(itemModel.discount.value)))
                 : Optional.empty();
 
+        ItemType type = new ItemType(itemModel.type);
         Amount unitPrice = new Amount(itemModel.unitPrice);
 
         WeightModel unitWeightModel = itemModel.unitWeight;
         Weight unitWeight = new Weight(unitWeightModel.value, WeightUnit.valueOf(unitWeightModel.unit));
 
-        return new ItemInfo(itemModel.code, itemModel.type, unitPrice, unitWeight, discount);
+        return new ItemInfo(itemModel.code, type, unitPrice, unitWeight, discount);
     }
 }

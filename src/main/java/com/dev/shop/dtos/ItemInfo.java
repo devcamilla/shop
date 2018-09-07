@@ -2,6 +2,7 @@ package com.dev.shop.dtos;
 
 import com.dev.shop.models.Amount;
 import com.dev.shop.models.Discount;
+import com.dev.shop.models.ItemType;
 import com.dev.shop.models.Weight;
 
 import java.util.Optional;
@@ -9,7 +10,7 @@ import java.util.Optional;
 public class ItemInfo {
     private String code;
 
-    private String type;
+    private ItemType type;
 
     private Amount unitPrice;
 
@@ -17,7 +18,7 @@ public class ItemInfo {
 
     private Optional<Discount> discount;
 
-    public ItemInfo(String code, String type, Amount unitPrice, Weight unitWeight, Optional<Discount> discount){
+    public ItemInfo(String code, ItemType type, Amount unitPrice, Weight unitWeight, Optional<Discount> discount){
         this.code = code;
         this.type = type;
         this.unitPrice = unitPrice;
@@ -29,7 +30,7 @@ public class ItemInfo {
         return code;
     }
 
-    public String getType() {
+    public ItemType getType() {
         return type;
     }
 

@@ -17,4 +17,8 @@ public class Percent {
     public double getValue() {
         return value;
     }
+
+    public double applyTo(double number){
+        return number * value / 100;
+    }
 }

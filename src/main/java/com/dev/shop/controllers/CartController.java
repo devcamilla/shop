@@ -1,12 +1,11 @@
 package com.dev.shop.controllers;
 
 import com.dev.shop.assemblers.CartAssembler;
-import com.dev.shop.dtos.CartInfo;
-import com.dev.shop.dtos.CartItemInfo;
 import com.dev.shop.models.Amount;
 import com.dev.shop.models.Cart;
 import com.dev.shop.repositories.CartRepository;
 import com.dev.shop.repositories.ItemRepository;
+import com.dev.shop.requestmodels.CartItemModel;
 import com.dev.shop.requestmodels.CartModel;
 import com.dev.shop.services.CartService;
 import com.dev.shop.utilities.Cashier;
@@ -39,9 +38,12 @@ public class CartController {
 
     @PostMapping
     public long create(@RequestBody CartModel cartModel){
-        CartInfo cartInfo = CartAssembler.toCartInfo(cartModel);
-        Cart cart = cartService.create(cartInfo);
-        return cart.getId();
+        Cart cart = cartService.create();
+        long id = cart.getId();
+        for (CartItemModel cartItemModel: cartModel.cartItemModels) {
+            cartService.addItem(id, cartItemModel.itemCode, cartItemModel.quantity);
+        }
+        return id;
     }
 
     @GetMapping("/{id}")
@@ -53,13 +55,13 @@ public class CartController {
 
     @PostMapping("/{id}/add")
     public CartModel addCartItem(@PathVariable long id, @RequestParam String itemCode, @RequestParam double quantity){
-        Cart cart = cartService.addCartItem(id, new CartItemInfo(itemCode, quantity));
+        Cart cart = cartService.addItem(id, itemCode, quantity);
         return CartAssembler.toCartModel(cart);
     }
 
     @PostMapping("/{id}/remove")
     public CartModel addCartItem(@PathVariable long id, @RequestParam String itemCode){
-        Cart cart = cartService.removeCartItem(id, itemCode);
+        Cart cart = cartService.removeItem(id, itemCode);
         return CartAssembler.toCartModel(cart);
     }
 

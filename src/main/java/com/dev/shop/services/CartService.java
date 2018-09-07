@@ -1,7 +1,5 @@
 package com.dev.shop.services;
 
-import com.dev.shop.dtos.CartInfo;
-import com.dev.shop.dtos.CartItemInfo;
 import com.dev.shop.models.Cart;
 import com.dev.shop.repositories.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,24 +12,24 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
-    public Cart create(CartInfo cartInfo) {
-        Cart cart = new Cart(cartInfo);
+    public Cart create() {
+        Cart cart = new Cart();
         return cartRepository.save(cart);
     }
 
-    public Cart addCartItem(long id, CartItemInfo cartItemInfo){
+    public Cart addItem(long id, String itemCode, double quantity){
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException());
 
-        cart.addCartItem(cartItemInfo);
+        cart.addItem(itemCode, quantity);
         return cartRepository.save(cart);
     }
 
-    public Cart removeCartItem(long id, String itemCode){
+    public Cart removeItem(long id, String itemCode){
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException());
 
-        cart.removeCartItem(itemCode);
+        cart.removeItem(itemCode);
         return cartRepository.save(cart);
     }
 }
