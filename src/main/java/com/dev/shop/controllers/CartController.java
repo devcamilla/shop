@@ -11,10 +11,12 @@ import com.dev.shop.services.CartService;
 import com.dev.shop.utilities.Cashier;
 import com.dev.shop.utilities.ShopInventory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,39 +32,45 @@ public class CartController {
     private CartService cartService;
 
     @GetMapping
-    public List<CartModel> getAll(){
-        return cartRepository.findAll().stream()
+    public ResponseEntity getAll(){
+        List<CartModel> cartModels = cartRepository.findAll().stream()
                 .map(cart -> CartAssembler.toCartModel(cart))
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(cartModels);
     }
 
     @PostMapping
-    public long create(@RequestBody CartModel cartModel){
+    public ResponseEntity create(@RequestBody CartModel cartModel){
         Cart cart = cartService.create();
         long id = cart.getId();
         for (CartItemModel cartItemModel: cartModel.cartItemModels) {
             cartService.addItem(id, cartItemModel.itemCode, cartItemModel.quantity);
         }
-        return id;
+        return ResponseEntity.ok(id);
     }
 
     @GetMapping("/{id}")
-    public CartModel getById(@PathVariable long id){
-        return cartRepository.findById(id)
-                .map(cart -> CartAssembler.toCartModel(cart))
-                .orElseThrow(() -> new EntityNotFoundException());
+    public ResponseEntity getById(@PathVariable long id){
+        Optional<CartModel> cartModel = cartRepository.findById(id)
+                .map(cart -> CartAssembler.toCartModel(cart));
+
+        if (!cartModel.isPresent()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(cartModel);
     }
 
     @PostMapping("/{id}/add")
-    public CartModel addCartItem(@PathVariable long id, @RequestParam String itemCode, @RequestParam double quantity){
+    public ResponseEntity addCartItem(@PathVariable long id, @RequestParam String itemCode, @RequestParam double quantity){
         Cart cart = cartService.addItem(id, itemCode, quantity);
-        return CartAssembler.toCartModel(cart);
+        return ResponseEntity.ok(CartAssembler.toCartModel(cart));
     }
 
     @PostMapping("/{id}/remove")
-    public CartModel addCartItem(@PathVariable long id, @RequestParam String itemCode){
+    public ResponseEntity addCartItem(@PathVariable long id, @RequestParam String itemCode){
         Cart cart = cartService.removeItem(id, itemCode);
-        return CartAssembler.toCartModel(cart);
+        return ResponseEntity.ok(CartAssembler.toCartModel(cart));
     }
 
     @DeleteMapping("/{id}")
@@ -71,7 +79,7 @@ public class CartController {
     }
 
     @GetMapping("/{id}/checkout")
-    public double checkout(@PathVariable long id){
+    public ResponseEntity checkout(@PathVariable long id){
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException());
 
@@ -79,6 +87,6 @@ public class CartController {
         Cashier cashier = new Cashier(shopInventory);
 
         Amount totalCost = cashier.checkout(cart);
-        return totalCost.getValue();
+        return ResponseEntity.ok(totalCost.getValue());
     }
 }

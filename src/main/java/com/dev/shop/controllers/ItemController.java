@@ -7,10 +7,14 @@ import com.dev.shop.repositories.ItemRepository;
 import com.dev.shop.requestmodels.ItemModel;
 import com.dev.shop.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import javax.xml.ws.Response;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,17 +27,19 @@ public class ItemController {
     private ItemService itemService;
 
     @GetMapping
-    public List<ItemModel> getAll(){
-        return itemRepository.findAll().stream()
+    public ResponseEntity getAll(){
+        List<ItemModel> itemModels = itemRepository.findAll().stream()
                 .map(item -> ItemAssembler.toItemModel(item))
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(itemModels);
     }
 
     @PostMapping
-    public long create(@RequestBody ItemModel itemModel){
+    public ResponseEntity create(@RequestBody ItemModel itemModel){
         ItemInfo itemInfo = ItemAssembler.toItemInfo(itemModel);
         Item item = itemService.create(itemInfo);
-        return item.getId();
+        return ResponseEntity.ok(item.getId());
     }
 
     @PutMapping("/{id}")
@@ -43,10 +49,14 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemModel getById(@PathVariable long id){
-        return itemRepository.findById(id)
-                .map(item -> ItemAssembler.toItemModel(item))
-                .orElseThrow(() -> new EntityNotFoundException());
+    public ResponseEntity getById(@PathVariable long id){
+        Optional<ItemModel> itemModel = itemRepository.findById(id)
+                .map(item -> ItemAssembler.toItemModel(item));
+
+        if (!itemModel.isPresent()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(itemModel);
     }
 
     @DeleteMapping("/{id}")
