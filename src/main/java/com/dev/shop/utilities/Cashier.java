@@ -2,20 +2,22 @@ package com.dev.shop.utilities;
 
 import com.dev.shop.models.Amount;
 import com.dev.shop.models.Cart;
+import com.dev.shop.models.Item;
+import com.dev.shop.repositories.ItemRepository;
 
 import java.util.Optional;
 
 public class Cashier {
-    private Inventory inventory;
-
     private CouponRegistry couponRegistry;
 
-    public Cashier(Inventory inventory){
-        this.inventory = inventory;
+    private ItemRepository itemRepository;
+
+    public Cashier(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
     }
 
-    public Cashier(Inventory inventory, CouponRegistry couponRegistry){
-        this.inventory = inventory;
+    public Cashier(ItemRepository itemRepository, CouponRegistry couponRegistry) {
+        this.itemRepository = itemRepository;
         this.couponRegistry = couponRegistry;
     }
 
@@ -31,12 +33,12 @@ public class Cashier {
     private Amount checkout(Cart cart, Optional<CouponRegistry.Coupon> coupon) {
         double totalCost = cart.getCartItems().stream()
                 .mapToDouble(cartItem -> {
-                    Inventory.InventoryItem inventoryItem = inventory.getItem(cartItem.getItemCode());
-                    double cost = inventoryItem.getNetPrice().getValue() * cartItem.getQuantity();
+                    Item item = itemRepository.findByCode(cartItem.getItemCode());
+                    double cost = item.getNetPrice().getValue() * cartItem.getQuantity();
 
                     if (!coupon.isPresent()) return cost;
 
-                    if (!coupon.get().appliesTo(inventoryItem.getItemType())) return cost;
+                    if (!coupon.get().appliesTo(item.getType())) return cost;
 
                     double discount = coupon.get().getPercent().applyTo(cost);
                     return cost - discount;

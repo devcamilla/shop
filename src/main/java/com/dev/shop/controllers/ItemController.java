@@ -3,16 +3,13 @@ package com.dev.shop.controllers;
 import com.dev.shop.assemblers.ItemAssembler;
 import com.dev.shop.dtos.ItemInfo;
 import com.dev.shop.models.Item;
-import com.dev.shop.repositories.ItemRepository;
+import com.dev.shop.repositories.JpaItemRepository;
 import com.dev.shop.requestmodels.ItemModel;
 import com.dev.shop.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
-import javax.xml.ws.Response;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +18,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/items")
 public class ItemController {
     @Autowired
-    private ItemRepository itemRepository;
+    private JpaItemRepository itemRepository;
 
     @Autowired
     private ItemService itemService;

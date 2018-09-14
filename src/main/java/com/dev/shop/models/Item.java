@@ -1,6 +1,7 @@
 package com.dev.shop.models;
 
 import com.dev.shop.dtos.ItemInfo;
+import com.dev.shop.utilities.AmountMath;
 
 import javax.persistence.*;
 import java.util.Optional;
@@ -69,5 +70,11 @@ public class Item {
         unitWeight = itemInfo.getUnitWeight();
 
         itemInfo.getDiscount().ifPresent(discount -> this.discount = discount);
+    }
+
+    public Amount getNetPrice(){
+        return getDiscount().isPresent()
+                ? AmountMath.substract(unitPrice, discount.applyTo(unitPrice))
+                : unitPrice;
     }
 }

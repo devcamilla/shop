@@ -4,12 +4,11 @@ import com.dev.shop.assemblers.CartAssembler;
 import com.dev.shop.models.Amount;
 import com.dev.shop.models.Cart;
 import com.dev.shop.repositories.CartRepository;
-import com.dev.shop.repositories.ItemRepository;
+import com.dev.shop.repositories.JpaItemRepository;
 import com.dev.shop.requestmodels.CartItemModel;
 import com.dev.shop.requestmodels.CartModel;
 import com.dev.shop.services.CartService;
 import com.dev.shop.utilities.Cashier;
-import com.dev.shop.utilities.ShopInventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/carts")
 public class CartController {
     @Autowired
-    private ItemRepository itemRepository;
+    private JpaItemRepository itemRepository;
 
     @Autowired
     private CartRepository cartRepository;
@@ -83,8 +82,7 @@ public class CartController {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException());
 
-        ShopInventory shopInventory = new ShopInventory(itemRepository);
-        Cashier cashier = new Cashier(shopInventory);
+        Cashier cashier = new Cashier(itemRepository);
 
         Amount totalCost = cashier.checkout(cart);
         return ResponseEntity.ok(totalCost.getValue());
